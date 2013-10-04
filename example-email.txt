@@ -1,0 +1,14 @@
+﻿From: "Your Name Here" <your.address@example.com>
+To: #Name-7bit# <#Email#>
+Subject: Important information for speakers
+Hello #Name#,
+
+You are receiving this email because you are scheduled to give the following talk:
+
+#Title#
+
+This is where I can include lots of useful information.
+
+Sincerely,
+
+Me.
