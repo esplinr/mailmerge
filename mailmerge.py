@@ -11,6 +11,7 @@ TODO: The program is currently hard-coded to relay through gmail instead of send
 
 import sys
 import email
+import time
 
 def prepare_email_message(template, value_dict):
     '''
@@ -46,7 +47,8 @@ def send_emails(template, values_dict_array):
     # TODO: This is hard coded to go through GMail.
     # smtplib doesn't support the with statement until 3.3
     #with SMTP_SSL(host="smtp.gmail.com", port="465") as smtp:
-    from smtplib import SMTP_SSL, SMTPServerDisconnected
+    from smtplib import SMTP_SSL
+    import smtplib
     send_count=0
 
     smtp_host="smtp.gmail.com"
@@ -65,7 +67,14 @@ def send_emails(template, values_dict_array):
             try:
                 email_message.set_charset('utf-8')
                 smtp.send_message(email_message)
-            except SMTPServerDisconnected:
+            except smtplib.SMTPServerDisconnected:
+                print("Reconnecting to SMTP Server")
+                smtp=SMTP_SSL(host=smtp_host, port=smtp_port)
+                smtp.login(smtp_login, smtp_pass)
+                smtp.send_message(email_message)
+            except smtplib.SMTPSenderRefused:
+                print("Pausing for Google rate-limit")
+                time.sleep(180)
                 print("Reconnecting to SMTP Server")
                 smtp=SMTP_SSL(host=smtp_host, port=smtp_port)
                 smtp.login(smtp_login, smtp_pass)
