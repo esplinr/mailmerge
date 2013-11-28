@@ -85,10 +85,8 @@ def send_emails(template, values_dict_array):
     print("Emails sent: {0}".format(send_count))
 
 
-def main():
+def main(arg_list):
     # Setup argument parsing
-    # TODO: The point of using a main function is so that it can also be called from the interactive interpreter. But I haven't figured out how to have ArgumentParser accept a main(argv) parameter instead of sys.argv.
-    # TODO: See http://www.artima.com/weblogs/viewpost.jsp?thread=4829
     import argparse
     parser = argparse.ArgumentParser(description="Send a personalized email to each person in a CSV.")
     parser.add_argument("csv_filename",
@@ -99,7 +97,7 @@ def main():
                         help="Text file containing the email. #keyname# will "
                              "be substituted for values in the CSV. Required "
                              "lines: 'From:', 'To:', and 'Subject:'")
-    args=parser.parse_args()
+    args=parser.parse_args(arg_list)
   
     # Read the email template
     with open(args.email_template_filename, encoding='utf-8-sig') \
@@ -119,7 +117,7 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:])) #Arg list needs to drop program name
 
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
