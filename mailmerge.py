@@ -44,19 +44,18 @@ def send_emails(template, values_dict_array):
 
     value_dict_array: Each row contains values that match keys used in the email.
     '''
-    # TODO: This is hard coded to go through GMail.
-    # smtplib doesn't support the with statement until 3.3
-    #with SMTP_SSL(host="smtp.gmail.com", port="465") as smtp:
     from smtplib import SMTP_SSL
     import smtplib
     send_count=0
 
+    # TODO: This is hard coded to go through GMail.
     smtp_host="smtp.gmail.com"
     smtp_port="465"
     smtp_login=""
     smtp_pass=""
 
     try:
+        # Can't use SMTP "with" statement, or loop will break on disconnect
         smtp=SMTP_SSL(host=smtp_host, port=smtp_port)
         smtp.login(smtp_login, smtp_pass)
 
