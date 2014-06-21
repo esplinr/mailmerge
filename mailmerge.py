@@ -44,21 +44,31 @@ def send_emails(template, values_dict_array):
 
     value_dict_array: Each row contains values that match keys used in the email.
     '''
-    from smtplib import SMTP_SSL
+    from smtplib import SMTP, SMTP_SSL
     import smtplib
     send_count=0
 
-    # TODO: This is hard coded to go through GMail.
-    smtp_host="smtp.gmail.com"
-    smtp_port="465"
+    smtp_host=""
+    smtp_port=""
     smtp_login=""
     smtp_pass=""
+    TLS = False
+
+    def smtp_connect():
+        # Can't use SMTP "with" statement, or loop will break on disconnect
+        smtp = None
+        if TLS: # TLS on port 587
+            smtp=SMTP(host=smtp_host, port=smtp_port)
+            smtp.starttls()
+            smtp.ehlo()
+        else: # SSL on port 465
+            smtp=SMTP_SSL(host=smtp_host, port=smtp_port)
+        smtp.login(smtp_login, smtp_pass)
+        print("connected to SMTP")
+        return smtp
 
     try:
-        # Can't use SMTP "with" statement, or loop will break on disconnect
-        smtp=SMTP_SSL(host=smtp_host, port=smtp_port)
-        smtp.login(smtp_login, smtp_pass)
-
+        smtp = smtp_connect() 
         for values_dict in values_dict_array:
             email_message = prepare_email_message(template, values_dict)
             to_addr = [t[1] for t in email_message.items() if t[0]=='To'][0]
@@ -68,15 +78,13 @@ def send_emails(template, values_dict_array):
                 smtp.send_message(email_message)
             except smtplib.SMTPServerDisconnected:
                 print("Reconnecting to SMTP Server")
-                smtp=SMTP_SSL(host=smtp_host, port=smtp_port)
-                smtp.login(smtp_login, smtp_pass)
+                smtp = smtp_connect()
                 smtp.send_message(email_message)
             except smtplib.SMTPSenderRefused:
-                print("Pausing for Google rate-limit")
+                print("Pausing for rate-limit")
                 time.sleep(180)
                 print("Reconnecting to SMTP Server")
-                smtp=SMTP_SSL(host=smtp_host, port=smtp_port)
-                smtp.login(smtp_login, smtp_pass)
+                smtp = smtp_connect()
                 smtp.send_message(email_message)
             send_count+=1
     finally:
