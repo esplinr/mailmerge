@@ -53,10 +53,9 @@ def send_emails(template, values_dict_array):
     smtp_login=""
     smtp_pass=""
     TLS = False
+    smtp = None # Can't use SMTP "with" statement, or loop will break on disconnect
 
     def smtp_connect():
-        # Can't use SMTP "with" statement, or loop will break on disconnect
-        smtp = None
         if TLS: # TLS on port 587
             smtp=SMTP(host=smtp_host, port=smtp_port)
             smtp.starttls()
@@ -88,7 +87,7 @@ def send_emails(template, values_dict_array):
                 smtp.send_message(email_message)
             send_count+=1
     finally:
-        smtp.quit()
+        if smtp: smtp.quit()
     print("Emails sent: {0}".format(send_count))
 
 
